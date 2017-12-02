@@ -1,5 +1,6 @@
 import numpy as np
-import bokeh as bk 
+import bokeh as bk
+import pandas as pd
 import matplotlib.pyplot as plt
 
 
@@ -8,16 +9,22 @@ class Simulator:
 	def __init__(self):
 		#self.default_dist = mod_pert_random
 		self.total = 0 # this would be an ndarray holding the total simulated time after simulation is finished
-		self.default_size = 10000
+		self.default_size = 1000
 		self.sim_size = input("=====Enter the numbers of simulation you want for every variable [the more the better, at least over 500 times] \
 			(If input is invalid, it will be the default size '10000')=====")
 		if not self.sim_size.isnumeric() or int(self.sim_size) < 500:
 			self.sim_size = self.default_size
+		else:
+			self.sim_size = int(self.sim_size) # coeric it to integer type so it won't create a bug when calling distribution methods
 
 
 	def final_plotting(self):
 		plt.hist(self.total, bins=300, normed=True)
 		plt.show()
+
+	def final_statistical_summary(self):
+		pd_series = pd.Series(self.total) # change the ndarray of final simulation total to pandas series for its statistical methods
+		print(pd_series.describe()) # print out the statistical summary in the standard output
 
 	def normal_distribution(self, mean, standard_deviation, size = 10000):
 		normal =np.random.normal(loc=mean, scale=standard_deviation, size=size)
@@ -100,7 +107,7 @@ class UI:
 		elif mode == 3:
 			dist_values = [] # for holding distribution values 
 			if dist == "1": # Normal dist
-				self.mtprint("Please enter Mean and Standard_deviation of Normal Distribution")
+				self.mtprint("Please enter Mean and Standard_deviation of Normal Distribution (Inte the Same Unit)")
 				mean = input("Mean : --> ")
 				while not mean.isnumeric() and float(mean) > 0:
 					print("Invalid mean input, Again!")
@@ -116,7 +123,7 @@ class UI:
 				dist_values.append(float(std))
 
 			elif dist == "2": # PERT dist
-				self.mtprint("Please enter WORST, MOST LIKELY and BEST case of PERT Distribution")
+				self.mtprint("Please enter WORST, MOST LIKELY and BEST case of PERT Distribution (In the Same Unit)")
 				worst = input("WORST : --> ")
 				while not worst.isnumeric() and float(worst) > 0:
 					print("Invalid mean input, Again!")
@@ -139,7 +146,7 @@ class UI:
 				dist_values.append(float(best))
 
 			elif dist == "3": # Uniform dist
-				self.mtprint("Please enter MIN and MAX value of Uniform Distribution")
+				self.mtprint("Please enter MIN and MAX value of Uniform Distribution (In the Same Unit)")
 
 				Min = input("MIN : --> ")
 				while not Min.isnumeric() and float(Min) > 0:
@@ -195,6 +202,7 @@ class UI:
 		print(total)
 		simulator.total = total
 		simulator.final_plotting() # plot out the result
+		simulator.final_statistical_summary() # print out the statistical summary
 
 
 	def run_program(self):
